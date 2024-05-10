@@ -10,19 +10,63 @@ const TaskForm = () => {
     priority: null,
     dueDate: "",
     status: "",
+    errorMsg : "",
   });
   
   const onChangeInput = (e) => {
     console.log(e.target);
     const { name, value } = e.target;
-    console.log(name);
-    console.log(value);
+    setFormData((prevData) => ({
+      ...prevData,
+      errorMsg : ""
+    }));
+    // console.log(name);
+    // console.log(value);
+    if(name === "priority" && (value < 1 || value > 10)){
+      // alert("Priority should be between 1 and 10");
+      setFormData((prevData) => ({
+        ...prevData,
+        errorMsg : "Priority should be between 1 and 10",
+      }));
+      return;
+    }
+    if(name === "title" && value.length > 100){
+      // alert("Title should be less than 50 characters");
+      setFormData((prevData) => ({
+        ...prevData,
+        errorMsg : "Title should be less than 50 characters",
+      }));
+      return;
+    }
+    if(name === "description" && value.length > 500){
+      // alert("Description should be less than 300 characters");
+      setFormData((prevData) => ({
+        ...prevData,
+        errorMsg : "Description should be less than 300 characters",
+      }));
+      return;
+    }
+    // throw alert if the due date is less than current date
+    if(name === "dueDate" && new Date(value) < new Date()){
+      setFormData((prevData) => ({
+        ...prevData,
+        errorMsg : "Due date should be greater than current date",
+      }));
+      return;
+    }
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
-
+  
+  const formValidation = (data) => {
+    const { title, description, priority, dueDate } = data;
+    if(title.length > 100 || priority < 1 || priority > 10 || description.length > 500 || new Date(dueDate) < new Date()){
+      return false;
+    }
+    return true;
+  }
 
 
   const { title, description, priority, dueDate } = formData;
@@ -46,7 +90,12 @@ const TaskForm = () => {
             priority,
             dueDate,
             status: "PENDING",
+            createdAt : new Date().toISOString(),
           };
+          if(!formValidation(data)){
+            alert("Please fill the fields properly");
+            return;
+          }
           addTask(data);
           setFormData({
             title: "",
@@ -57,7 +106,7 @@ const TaskForm = () => {
           });
         };
         return (
-          <div className="flex flex-col justify-center items-center h-full w-2/5 border border-slate-700 p-3">
+          <div className=" sticky flex flex-col justify-center items-center h-screen w-2/5 border border-slate-700 p-3">
             <form
               className="flex flex-col justify-center items-center"
               onSubmit={handleSubmit}
@@ -132,6 +181,7 @@ const TaskForm = () => {
                   />
                 </div>
               </div>
+              <p className="text-red-700">{formData.errorMsg}</p>
               <Button variant="primary" type="submit">
                 Submit
               </Button>

@@ -2,15 +2,17 @@ import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { useState } from "react";
 import TaskManagerContext from "../../context/TaskManagerContext";
+import MyVerticallyCenteredModal from "../Modal";
 
 const Task = (props) => {
-  const [isChecked, setIsChecked] = useState(false);
-
+  
   const { taskDetails } = props;
   const { id, title, description, priority, dueDate, status } = taskDetails;
- 
+  
+  const [isChecked, setIsChecked] = useState(status === "COMPLETED");
+  const [modalShow, setModalShow] = useState(false);
 
-  const isCheckedClass = isChecked ? "line-through" : "";
+  const isCheckedClass = status === "COMPLETED" ? "line-through" : "";
   const statusClass = status === "COMPLETED" ? "text-success" : "text-danger";
 
   return (
@@ -22,7 +24,7 @@ const Task = (props) => {
           updateTaskStatus(id);
         };
         const onClickDeleteTask = () => deleteTask(id);
-        const onClickEditTask = () => updateTask(id);
+        const onClickEditTask = () => setModalShow(true);
         
         return (
           <li className="mt-2 mr-2">
@@ -60,9 +62,16 @@ const Task = (props) => {
                 </Button>
               </Card.Body>
             </Card>
+            <MyVerticallyCenteredModal
+              show={modalShow}
+              onHide={() => setModalShow(false)}
+              taskDetails = {taskDetails}
+              updateTask={updateTask}
+            />
           </li>
         );
       }}
+    
     </TaskManagerContext.Consumer>
   );
 };
